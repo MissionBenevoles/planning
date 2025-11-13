@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planification Bénévoles Emballage Cadeaux FA57</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f8f8fa; color: #222; padding: 20px; }
+        header { background: #28537a; color: #fff; text-align: center; padding: 20px; margin-bottom: 20px; border-radius: 8px; }
+        header h1 { font-size: 1.8em; }
+        nav { margin-bottom: 20px; text-align: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+        nav button { padding: 10px 12px; border-radius: 4px; border: 1px solid #aaa; background: #ededf5; cursor: pointer; font-size: 0.95em; }
+        nav button.active { background: #28537a; color: #fff; border: none; }
+        .tab { display: none; }
+        .tab.active { display: block; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        h2 { color: #28537a; margin: 20px 0 15px 0; }
+        h3 { color: #4677a3; margin-top: 15px; margin-bottom: 10px; }
+        .partenaire { background: #fff; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 18px; }
+        .partenaire-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .partenaire-title { font-size: 1.2em; font-weight: bold; }
+        .partenaire-contact { font-size: 0.95em; color: #4677a3; }
+        .partenaire-location { font-size: 0.9em; color: #666; margin-top: 3px; }
+        .partenaire-note { font-size: 0.85em; color: #1a5276; font-style: italic; margin-top: 5px; padding: 5px; background: #e8f4f8; border-left: 3px solid #1a5276; }
+        .slots-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .slots-table th, .slots-table td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 0.9em; }
+        .slots-table th { background: #28537a; color: #fff; }
+        .slots-table td { background: #f9f9f9; }
+        .slot-cell { padding: 0 !important; }
+        .slot-content { padding: 5px; }
+        .slot-count { display: block; font-size: 0.85em; color: #666; margin: 3px 0; }
+        .slot-count.full { color: #d9534f; font-weight: bold; font-size: 0.9em; }
+        .inscr-button { padding: 5px 8px; background: #4677a3; color: #fff; border: none; border-radius: 3px; cursor: pointer; font-size: 0.85em; }
+        .inscr-button:hover { background: #2d4a63; }
+        .inscr-button.full { background: #d9534f; cursor: not-allowed; font-weight: bold; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; }
+        .modal.active { display: flex; justify-content: center; align-items: center; }
+        .modal-content { background: #fff; padding: 25px; border-radius: 8px; max-width: 400px; width: 90%; }
+        .modal-content h3 { margin-bottom: 15px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .form-group input:focus { outline: none; border-color: #28537a; }
+        .button-group { display: flex; gap: 10px; margin-top: 20px; }
+        .button-group button { flex: 1; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-confirm { background: #28537a; color: #fff; }
+        .btn-confirm:hover { background: #1f3d56; }
+        .btn-cancel { background: #ddd; }
+        .btn-cancel:hover { background: #ccc; }
+        .user-name-display { padding: 10px 15px; background: #e8eefd; border-radius: 4px; margin-bottom: 15px; text-align: center; }
+        .user-name-display b { color: #28537a; }
+        .user-name-display button { padding: 5px 10px; margin-left: 10px; cursor: pointer; background: #28537a; color: #fff; border: none; border-radius: 3px; }
+        .inscriptions-list { background: #fff; padding: 15px; border-radius: 8px; }
+        .inscription-item { background: #f0f4f8; padding: 12px; margin-bottom: 10px; border-left: 4px solid #28537a; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .inscription-details { flex: 1; }
+        .inscription-date { font-weight: bold; color: #28537a; }
+        .inscription-time { color: #666; font-size: 0.9em; }
+        .inscription-partner { color: #4677a3; font-size: 0.9em; }
+        .btn-annuler { padding: 5px 10px; background: #d9534f; color: #fff; border: none; border-radius: 3px; cursor: pointer; }
+        .btn-annuler:hover { background: #c9302c; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 15px; }
+        .calendar-date { padding: 10px; background: #e8eefd; border: 2px solid #c0caeb; border-radius: 5px; cursor: pointer; text-align: center; font-size: 0.9em; }
+        .calendar-date.has-slot { background: #28537a; color: #fff; font-weight: bold; }
+        .calendar-date:hover { transform: scale(1.05); transition: transform 0.2s; }
+        .admin-section { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .admin-lock { display: flex; align-items: center; gap: 15px; background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ffc107; }
+        .admin-lock-icon { font-size: 2em; }
+        .admin-lock-content h3 { margin: 0 0 5px 0; color: #856404; }
+        .admin-lock-content p { margin: 0; color: #856404; font-size: 0.95em; }
+        .admin-password-form { background: #f8f8fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .admin-password-form input { width: 200px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .admin-password-form button { padding: 8px 15px; background: #28537a; color: #fff; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px; }
+        .admin-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .admin-table th { background: #28537a; color: #fff; }
+        .admin-table tr:nth-child(even) { background: #f9f9f9; }
+        .admin-inscrits { font-size: 0.9em; color: #4677a3; max-height: 150px; overflow-y: auto; }
+        .admin-inscrits li { list-style: none; padding: 3px 0; }
+        .message { padding: 15px; margin: 15px 0; border-radius: 4px; }
+        .message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .message.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        @media screen and (max-width: 600px) {
+            nav { flex-direction: column; }
+            nav button { width: 100%; }
+            .partenaire-header { flex-direction: column; align-items: flex-start; }
+            .slots-table { font-size: 0.8em; }
+            .slots-table th, .slots-table td { padding: 5px 2px; }
+            .admin-lock { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Planification Bénévoles – Emballage Cadeaux FA57</h1>
+    </header>
+    <div class="container">
+        <nav id="tabs-nav">
+            <button data-tab="partenaires" class="active">Partenaires</button>
+            <button data-tab="cultura">Cultura Thionville</button>
+            <button data-tab="nocibe-thionville">Nocibé Thionville</button>
+            <button data-tab="grande-recre">La Grande Récré</button>
+            <button data-tab="nocibe-semecourt">Nocibé Semécourt</button>
+            <button data-tab="nocibe-mondelange">Nocibé Mondelange</button>
+            <button data-tab="inscriptions">Mes Inscriptions</button>
+            <button data-tab="calendrier">Calendrier</button>
+            <button data-tab="admin">Admin</button>
+        </nav>
+
+        <!-- Onglet PARTENAIRES -->
+        <section class="tab active" id="tab-partenaires">
+            <h2>Partenaires</h2>
+            <div id="partenaires-list"></div>
+        </section>
+
+        <!-- Onglet CULTURA -->
+        <section class="tab" id="tab-cultura">
+            <h2>Cultura Thionville</h2>
+            <div id="cultura-detail"></div>
+        </section>
+
+        <!-- Onglet NOCIBE THIONVILLE -->
+        <section class="tab" id="tab-nocibe-thionville">
+            <h2>Nocibé Thionville</h2>
+            <div id="nocibe-thionville-detail"></div>
+        </section>
+
+        <!-- Onglet LA GRANDE RECRE -->
+        <section class="tab" id="tab-grande-recre">
+            <h2>La Grande Récré Thionville</h2>
+            <div id="grande-recre-detail"></div>
+        </section>
+
+        <!-- Onglet NOCIBE SEMECOURT -->
+        <section class="tab" id="tab-nocibe-semecourt">
+            <h2>Nocibé Semécourt</h2>
+            <div id="nocibe-semecourt-detail"></div>
+        </section>
+
+        <!-- Onglet NOCIBE MONDELANGE -->
+        <section class="tab" id="tab-nocibe-mondelange">
+            <h2>Nocibé Mondelange</h2>
+            <div id="nocibe-mondelange-detail"></div>
+        </section>
+
+        <!-- Onglet MES INSCRIPTIONS -->
+        <section class="tab" id="tab-inscriptions">
+            <h2>Mes Inscriptions</h2>
+            <div id="inscriptions-content">
+                <div class="user-name-display">
+                    <span>Connecté en tant que : <b id="current-user">Non identifié</b></span>
+                    <button onclick="changeUser()">Changer</button>
+                </div>
+                <div id="inscriptions-list"></div>
+            </div>
+        </section>
+
+        <!-- Onglet CALENDRIER -->
+        <section class="tab" id="tab-calendrier">
+            <h2>Calendrier</h2>
+            <div id="calendrier-content"></div>
+        </section>
+
+        <!-- Onglet ADMIN -->
+        <section class="tab" id="tab-admin">
+            <h2>Tableau de Bord Admin</h2>
+            <div id="admin-content"></div>
+        </section>
+    </div>
+
+    <!-- MODAL INSCRIPTION -->
+    <div class="modal" id="modal-inscription">
+        <div class="modal-content">
+            <h3 id="modal-title">S'inscrire</h3>
+            <p id="modal-slot-info"></p>
+            <div class="form-group">
+                <label for="nom-input">Votre nom :</label>
+                <input type="text" id="nom-input" placeholder="Entrez votre nom">
+            </div>
+            <div class="button-group">
+                <button class="btn-confirm" onclick="confirmerInscription()">S'inscrire</button>
+                <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ DONNÉES ============
+        const partnersData = {
+            "Cultura Thionville": {
+                contact: "Anne",
+                location: "Zone Linkling, Terville",
+                consigne: "Vérifiez avec FA57 que vous avez bien eu les consignes",
+                dates: ["01/12/2025", "04/12/2025", "08/12/2025", "09/12/2025", "11/12/2025", "15/12/2025", "18/12/2025"]
+            },
+            "Nocibé Semécourt": {
+                contact: "Zoé",
+                location: "Galeries Auchan, Semécourt",
+                consigne: "Vérifiez avec FA57 que vous avez bien eu les consignes",
+                dates: ["28/11/2025", "29/11/2025"]
+            },
+            "Nocibé Thionville": {
+                contact: "Gwenola",
+                location: "Zone Géric, Thionville",
+                consigne: "Vérifiez avec FA57 que vous avez bien eu les consignes",
+                dates: ["08/12/2025", "09/12/2025", "11/12/2025", "15/12/2025", "16/12/2025", "29/12/2025", "30/12/2025"]
+            },
+            "La Grande Récré": {
+                contact: "Emilie",
+                location: "Zone Géric, Thionville",
+                consigne: "Vérifiez avec FA57 que vous avez bien eu les consignes",
+                dates: ["01/12/2025", "02/12/2025", "15/12/2025", "16/12/2025", "18/12/2025", "19/12/2025"]
+            },
+            "Nocibé Mondelange": {
+                contact: "Frédérique",
+                location: "Mondelange",
+                consigne: "Vérifiez avec FA57 que vous avez bien eu les consignes",
+                dates: ["30/11/2025", "06/12/2025", "13/12/2025", "20/12/2025"],
+                note: "(Dates à confirmer avec Frédérique)"
+            }
+        };
+
+        const timeSlots = ["10h-12h", "12h-14h", "14h-16h", "16h-18h"];
+        const slotsPerTimeframe = 2;
+        const adminPassword = "FA57000"; // Mot de passe admin
+
+        // ============ ÉTAT APPLICATION ============
+        let currentUser = null;
+        let inscriptions = {}; // { partnerId_date_time: [nom1, nom2, ...] }
+        let adminUnlocked = false;
+
+        // ============ FONCTIONS UTILITAIRES ============
+        function formatDate(dateStr) {
+            let [d, m, y] = dateStr.split('/');
+            return new Date(y, m-1, d);
+        }
+
+        function getAllSlots() {
+            let slots = [];
+            for (let partner in partnersData) {
+                for (let date of partnersData[partner].dates) {
+                    for (let time of timeSlots) {
+                        slots.push({ partner, date, time });
+                    }
+                }
+            }
+            return slots;
+        }
+
+        function getSlotKey(partner, date, time) {
+            return `${partner}|${date}|${time}`;
+        }
+
+        function getInscritsCount(partner, date, time) {
+            const key = getSlotKey(partner, date, time);
+            return inscriptions[key] ? inscriptions[key].length : 0;
+        }
+
+        function isSlotFull(partner, date, time) {
+            return getInscritsCount(partner, date, time) >= slotsPerTimeframe;
+        }
+
+        // ============ AFFICHAGE PARTENAIRES ============
+        function renderPartner(partnerName, data) {
+            let html = `<div class="partenaire">
+                <div class="partenaire-title">${partnerName} <span class="partenaire-contact">Contact magasin : ${data.contact}</span></div>
+                <div class="partenaire-location">${data.location}${data.note ? ' <i style="color:#d9534f;">' + data.note + '</i>' : ''}</div>
+                <div class="partenaire-note">${data.consigne}</div>
+                <table class="slots-table">
+                    <tr><th>Date</th>`;
+            for (let time of timeSlots) html += `<th>${time}</th>`;
+            html += '</tr>';
+            
+            for (let date of data.dates) {
+                html += `<tr><td>${date}</td>`;
+                for (let time of timeSlots) {
+                    let count = getInscritsCount(partnerName, date, time);
+                    let isFull = isSlotFull(partnerName, date, time);
+                    let countClass = isFull ? 'full' : '';
+                    html += `<td class="slot-cell"><div class="slot-content">
+                        <span class="slot-count ${countClass}">${count}/${slotsPerTimeframe}</span>`;
+                    if (isFull) {
+                        html += `<div style="color: #d9534f; font-weight: bold; font-size: 0.9em; margin-top: 2px;">COMPLET</div>
+                        <button class="inscr-button full" disabled>Complet</button>`;
+                    } else {
+                        html += `<button class="inscr-button" onclick="openInscriptionModal('${partnerName}', '${date}', '${time}')">S'inscrire</button>`;
+                    }
+                    html += `</div></td>`;
+                }
+                html += '</tr>';
+            }
+            html += '</table></div>';
+            return html;
+        }
+
+        // ============ MODAL INSCRIPTION ============
+        let currentModalSlot = null;
+
+        function openInscriptionModal(partner, date, time) {
+            currentModalSlot = { partner, date, time };
+            document.getElementById('modal-title').textContent = `S'inscrire - ${partner}`;
+            document.getElementById('modal-slot-info').textContent = `Date: ${date} | Horaire: ${time}`;
+            if (currentUser) {
+                document.getElementById('nom-input').value = currentUser;
+            }
+            document.getElementById('modal-inscription').classList.add('active');
+        }
+
+        function fermerModal() {
+            document.getElementById('modal-inscription').classList.remove('active');
+            currentModalSlot = null;
+        }
+
+        function confirmerInscription() {
+            let nom = document.getElementById('nom-input').value.trim();
+            if (!nom) {
+                alert('Veuillez entrer votre nom');
+                return;
+            }
+            currentUser = nom;
+            let key = getSlotKey(currentModalSlot.partner, currentModalSlot.date, currentModalSlot.time);
+            if (!inscriptions[key]) inscriptions[key] = [];
+            inscriptions[key].push(nom);
+            fermerModal();
+            renderAllTabs();
+            switchTab('inscriptions');
+        }
+
+        // ============ AFFICHAGE MES INSCRIPTIONS ============
+        function renderMyInscriptions() {
+            document.getElementById('current-user').textContent = currentUser || 'Non identifié';
+            
+            if (!currentUser) {
+                document.getElementById('inscriptions-list').innerHTML = '<div class="message info">Veuillez vous identifier pour voir vos inscriptions.</div>';
+                return;
+            }
+
+            let myInscriptions = [];
+            for (let key in inscriptions) {
+                if (inscriptions[key].includes(currentUser)) {
+                    let [partner, date, time] = key.split('|');
+                    myInscriptions.push({ partner, date, time, key });
+                }
+            }
+
+            if (myInscriptions.length === 0) {
+                document.getElementById('inscriptions-list').innerHTML = '<div class="message info">Vous n\'avez pas encore d\'inscriptions.</div>';
+                return;
+            }
+
+            let html = '<div class="inscriptions-list">';
+            myInscriptions.forEach(item => {
+                html += `<div class="inscription-item">
+                    <div class="inscription-details">
+                        <div class="inscription-date">${item.date}</div>
+                        <div class="inscription-time">Horaire: ${item.time}</div>
+                        <div class="inscription-partner">${item.partner}</div>
+                    </div>
+                    <button class="btn-annuler" onclick="annulerInscription('${item.key}')">Annuler</button>
+                </div>`;
+            });
+            html += '</div>';
+            document.getElementById('inscriptions-list').innerHTML = html;
+        }
+
+        function annulerInscription(key) {
+            if (confirm('Êtes-vous sûr ?')) {
+                inscriptions[key] = inscriptions[key].filter(n => n !== currentUser);
+                renderMyInscriptions();
+            }
+        }
+
+        function changeUser() {
+            let newName = prompt('Entrez votre nom :');
+            if (newName && newName.trim()) {
+                currentUser = newName.trim();
+                renderMyInscriptions();
+            }
+        }
+
+        // ============ AFFICHAGE CALENDRIER ============
+        function renderCalendrier() {
+            let slots = getAllSlots();
+            let dateSet = new Set();
+            slots.forEach(s => dateSet.add(s.date));
+            let dates = Array.from(dateSet).sort((a, b) => formatDate(a) - formatDate(b));
+
+            let html = '<div class="calendar-grid">';
+            dates.forEach(date => {
+                let hasInscriptions = slots.some(s => s.date === date && getInscritsCount(s.partner, s.date, s.time) > 0);
+                html += `<div class="calendar-date ${hasInscriptions ? 'has-slot' : ''}">${date}</div>`;
+            });
+            html += '</div>';
+            document.getElementById('calendrier-content').innerHTML = html;
+        }
+
+        // ============ AFFICHAGE ADMIN ============
+        function renderAdmin() {
+            if (!adminUnlocked) {
+                let html = `<div class="admin-lock">
+                    <div class="admin-lock-icon">🔒</div>
+                    <div class="admin-lock-content">
+                        <h3>Accès Admin Sécurisé</h3>
+                        <p>Entrez le mot de passe pour accéder aux données détaillées des inscriptions</p>
+                    </div>
+                </div>
+                <div class="admin-password-form">
+                    <input type="password" id="admin-password" placeholder="Mot de passe admin">
+                    <button onclick="checkAdminPassword()">Déverrouiller</button>
+                </div>`;
+                document.getElementById('admin-content').innerHTML = html;
+                return;
+            }
+
+            let stats = [];
+            for (let partner in partnersData) {
+                let totalSlots = partnersData[partner].dates.length * timeSlots.length;
+                let totalInscrits = 0;
+                for (let date of partnersData[partner].dates) {
+                    for (let time of timeSlots) {
+                        totalInscrits += getInscritsCount(partner, date, time);
+                    }
+                }
+                let percentage = ((totalInscrits / (totalSlots * slotsPerTimeframe)) * 100).toFixed(1);
+                stats.push({ partner, totalSlots, totalInscrits, percentage });
+            }
+
+            let html = `<div style="margin-bottom: 15px;"><button onclick="lockAdmin()" style="padding: 8px 15px; background: #d9534f; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Verrouiller l'accès admin</button></div>`;
+            html += '<table class="admin-table"><tr><th>Partenaire</th><th>Créneaux</th><th>Inscrits</th><th>Taux de remplissage</th><th>Détail des inscrits</th></tr>';
+            
+            // Construire les stats par créneau
+            for (let partner in partnersData) {
+                for (let date of partnersData[partner].dates) {
+                    for (let time of timeSlots) {
+                        let count = getInscritsCount(partner, date, time);
+                        if (count > 0) {
+                            let key = getSlotKey(partner, date, time);
+                            let inscrits = inscriptions[key].join(', ');
+                            html += `<tr><td>${partner}</td><td>${date} - ${time}</td><td>${count}/${slotsPerTimeframe}</td><td>${(count/slotsPerTimeframe*100).toFixed(0)}%</td><td><strong>${inscrits}</strong></td></tr>`;
+                        }
+                    }
+                }
+            }
+            
+            html += '</table>';
+            document.getElementById('admin-content').innerHTML = html;
+        }
+
+        function checkAdminPassword() {
+            let password = document.getElementById('admin-password').value;
+            if (password === adminPassword) {
+                adminUnlocked = true;
+                renderAdmin();
+            } else {
+                alert('Mot de passe incorrect');
+                document.getElementById('admin-password').value = '';
+            }
+        }
+
+        function lockAdmin() {
+            adminUnlocked = false;
+            renderAdmin();
+        }
+
+        // ============ RENDU ONGLETS ============
+        function renderAllTabs() {
+            // Onglet Partenaires avec Cultura en premier
+            let partenairesHtml = '';
+            partenairesHtml += renderPartner('Cultura Thionville', partnersData['Cultura Thionville']);
+            partenairesHtml += renderPartner('Nocibé Semécourt', partnersData['Nocibé Semécourt']);
+            partenairesHtml += renderPartner('Nocibé Thionville', partnersData['Nocibé Thionville']);
+            partenairesHtml += renderPartner('La Grande Récré', partnersData['La Grande Récré']);
+            partenairesHtml += renderPartner('Nocibé Mondelange', partnersData['Nocibé Mondelange']);
+            document.getElementById('partenaires-list').innerHTML = partenairesHtml;
+            
+            // Onglets individuels
+            document.getElementById('cultura-detail').innerHTML = renderPartner('Cultura Thionville', partnersData['Cultura Thionville']);
+            document.getElementById('nocibe-thionville-detail').innerHTML = renderPartner('Nocibé Thionville', partnersData['Nocibé Thionville']);
+            document.getElementById('grande-recre-detail').innerHTML = renderPartner('La Grande Récré', partnersData['La Grande Récré']);
+            document.getElementById('nocibe-semecourt-detail').innerHTML = renderPartner('Nocibé Semécourt', partnersData['Nocibé Semécourt']);
+            document.getElementById('nocibe-mondelange-detail').innerHTML = renderPartner('Nocibé Mondelange', partnersData['Nocibé Mondelange']);
+            
+            renderMyInscriptions();
+            renderCalendrier();
+            renderAdmin();
+        }
+
+        // ============ NAVIGATION ONGLETS ============
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        }
+
+        document.querySelectorAll('nav button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                switchTab(e.target.dataset.tab);
+            });
+        });
+
+        // ============ INITIALISATION ============
+        renderAllTabs();
+    </script>
+</body>
+</html>
